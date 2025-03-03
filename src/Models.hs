@@ -7,10 +7,15 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE DeriveGeneric #-} 
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
+
 
 module Models (
-    Todo(..)
+    Todo(..),         -- ✅ Export Todo entity
+    migrateAll        -- ✅ Export migrateAll for migrations
 ) where  
 
 import Database.Persist.TH
@@ -20,14 +25,13 @@ import Data.Aeson (ToJSON, FromJSON)
 import GHC.Generics (Generic) 
 
 -- Persistent database schema
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|  
 Todo
     todo String
     description String
     completed Bool
     deriving Show Generic
 |]
-
 
 instance ToJSON Todo
 instance FromJSON Todo

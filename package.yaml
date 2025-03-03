@@ -33,6 +33,7 @@ dependencies:
 - persistent-sqlite >= 2.13 && < 2.14
 - persistent-template >= 2.12 && < 2.13
 
+
 ghc-options:
 - -Wall
 - -Wcompat

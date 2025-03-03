@@ -1,28 +1,29 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Server(app, runServer) where
+module Server (app, runServer) where
 
 import Servant
 import Api
-import Models (User(..))
+import Handlers
 import Network.Wai (Application)
 import Network.Wai.Handler.Warp (run)
-import Control.Concurrent.MVar
-import Control.Monad.IO.Class (liftIO)
-import Handlers (getUser, getUserById,postUser, updateUser, deleteUser)
+import Database
+import Database.Persist.Sql (ConnectionPool, runMigration)
+import Models (migrateAll)  -- ✅ Import migrateAll
 
+server :: ConnectionPool -> Server API
+server pool = getTodos pool 
+         :<|> postTodo pool 
+         :<|> updateTodo pool 
+         :<|> deleteTodo pool
 
-server :: MVar [User] -> Server API
-server usersVar = getUser usersVar :<|> getUserById usersVar :<|> postUser usersVar :<|> updateUser usersVar  :<|> deleteUser usersVar 
-
-
-
-app :: MVar [User] -> Application
-app usersVar = serve api (server usersVar)
+app :: ConnectionPool -> Application
+app pool = serve api (server pool)
 
 runServer :: IO ()
-runServer = do
-    usersVar <- newMVar [User 1 "Isaac" "isaac@gmail.com"]
-    putStrLn "Running server on port 8080"
-    run 8080 (app usersVar)
+runServer = withDatabasePool $ \pool -> do
+    putStrLn "Running database migrations..."
+    runDB (runMigration migrateAll) pool  -- ✅ Apply migrations
+    putStrLn "Migrations complete. Starting server..."
+    run 8080 (app pool)
