@@ -1,52 +1,31 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
-module Handlers (getUser, getUserById, postUser, deleteUser, updateUser) where
+module Handlers (getTodos, postTodo, updateTodo, deleteTodo) where
 
 import Servant
-import Models(User(..))
-import Control.Monad.IO.Class(liftIO)
-import Control.Concurrent.MVar (MVar, readMVar, modifyMVar, modifyMVar_)
-import Data.Maybe (listToMaybe)
+import Models(Todo(..))
+import Database.Persist.Sql (Entity(..), insert, selectList, (==.), update, replace, delete)
+import Database (runDB)
+import Control.Monad.IO.Class (liftIO)
+import Database.Persist.Sql (Key)
 
-getUser :: MVar [User] -> Handler [User]
-getUser usersVar = liftIO $ readMVar usersVar
+-- GET /todos
+getTodos :: ConnectionPool -> Handler [Entity Todo]
+getTodos pool = runDB (selectList [] []) pool
 
-getUserById :: MVar [User] -> Int -> Handler User
-getUserById usersVar uId = do
-  users <- liftIO $ readMVar usersVar
-  let maybeUser = listToMaybe $ filter (\u -> userId u == uId) users
-  case maybeUser of
-    Nothing -> throwError err404 {errBody = "User not found"}
-    Just user -> return user
+-- POST /todos
+postTodo :: ConnectionPool -> Todo -> Handler (Entity Todo)
+postTodo pool todo = runDB (insertEntity todo) pool
 
-postUser :: MVar [User] -> User -> Handler [User]
-postUser usersVar user = liftIO $ modifyMVar usersVar $ \users -> 
-    let newId = if null users then 1 else userId (last users) + 1
-        newUser = user {userId = newId}
-        updatedUsers = users ++ [newUser]
-    in return (updatedUsers, updatedUsers)
+-- PUT /todos/:id
+updateTodo :: ConnectionPool -> Key Todo -> Todo -> Handler (Entity Todo)
+updateTodo pool todoId newTodo = do
+    runDB (replace todoId newTodo) pool
+    return (Entity todoId newTodo)
 
-deleteUser :: MVar [User] -> Int -> Handler NoContent
-deleteUser usersVar uId = liftIO $ do
-    modifyMVar_ usersVar $ \users -> 
-        return $ filter (\u -> userId u /= uId) users
+-- DELETE /todos/:id
+deleteTodo :: ConnectionPool -> Key Todo -> Handler NoContent
+deleteTodo pool todoId = do
+    runDB (delete todoId) pool
     return NoContent
-
-updateUser :: MVar [User] -> Int -> User -> Handler User
-updateUser usersVar uId updatedUser = do
-    -- First modify the users list
-    liftIO $ modifyMVar_ usersVar $ \users ->
-        return $ map (\u -> if userId u == uId 
-                           then updatedUser { userId = uId } 
-                           else u) users
-    
-    -- Then read the updated list to find the user
-    users <- liftIO $ readMVar usersVar
-    let maybeUser = listToMaybe $ filter (\u -> userId u == uId) users
-    
-    -- Handle the case where user might not exist
-    case maybeUser of
-        Nothing -> throwError err404 {errBody = "User not found"}
-        Just user -> return user
