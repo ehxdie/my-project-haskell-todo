@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Api
+      BinarySortAlgorithm
       Database
       Handlers
       Lib
@@ -40,15 +41,21 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       aeson
-    , base >=4.7 && <4.19
-    , ghc-prim
-    , persistent ==2.14.*
-    , persistent-sqlite ==2.13.*
-    , persistent-template ==2.12.*
-    , servant ==0.20.*
-    , servant-server ==0.20.*
+    , base
+    , bytestring
+    , containers
+    , directory
+    , lucid
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-postgresql
+    , persistent-template
+    , servant
+    , servant-lucid
+    , servant-server
     , text
-    , time
+    , transformers
     , wai
     , warp
   default-language: Haskell2010
@@ -64,16 +71,22 @@ executable my-project-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
-    , base >=4.7 && <4.19
-    , ghc-prim
+    , base
+    , bytestring
+    , containers
+    , directory
+    , lucid
+    , monad-logger
+    , mtl
     , my-project
-    , persistent ==2.14.*
-    , persistent-sqlite ==2.13.*
-    , persistent-template ==2.12.*
-    , servant ==0.20.*
-    , servant-server ==0.20.*
+    , persistent
+    , persistent-postgresql
+    , persistent-template
+    , servant
+    , servant-lucid
+    , servant-server
     , text
-    , time
+    , transformers
     , wai
     , warp
   default-language: Haskell2010
@@ -90,16 +103,22 @@ test-suite my-project-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
-    , base >=4.7 && <4.19
-    , ghc-prim
+    , base
+    , bytestring
+    , containers
+    , directory
+    , lucid
+    , monad-logger
+    , mtl
     , my-project
-    , persistent ==2.14.*
-    , persistent-sqlite ==2.13.*
-    , persistent-template ==2.12.*
-    , servant ==0.20.*
-    , servant-server ==0.20.*
+    , persistent
+    , persistent-postgresql
+    , persistent-template
+    , servant
+    , servant-lucid
+    , servant-server
     , text
-    , time
+    , transformers
     , wai
     , warp
   default-language: Haskell2010

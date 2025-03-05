@@ -1,11 +1,12 @@
 module Lib
     ( someFunc,
-      minInt,
-      example2
+      -- minInt,
+      example2,
+      times4
     ) where
 
-import Data.List
-import System.IO
+-- import Data.List
+-- import System.IO
 
 minInt :: Int
 minInt = minBound

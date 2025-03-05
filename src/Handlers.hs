@@ -5,7 +5,7 @@ module Handlers (getTodos, postTodo, updateTodo, deleteTodo) where
 
 import Servant
 import Models(Todo(..))
-import Database.Persist.Sql (Entity(..), insert, selectList, (==.), update, replace, delete)
+import Database.Persist.Sql (Entity(..), ConnectionPool, insertEntity, insert, selectList, (==.), update, replace, delete)
 import Database (runDB)
 import Control.Monad.IO.Class (liftIO)
 import Database.Persist.Sql (Key)
