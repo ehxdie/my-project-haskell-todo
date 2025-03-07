@@ -39,6 +39,10 @@ dependencies:
 - wai
 - base
 - lucid
+- dotenv
+# - http-api-data
+# - http-types
+# - web-form-urlencoded
   
 
 

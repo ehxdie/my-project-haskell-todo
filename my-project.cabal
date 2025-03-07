@@ -26,11 +26,13 @@ source-repository head
 library
   exposed-modules:
       Api
-      BinarySortAlgorithm
       Database
       Handlers
-      Lib
+      Helpers.Htmx
       Models
+      Pages.AuthPage
+      Pages.Layout
+      Pages.TodoPage
       Server
   other-modules:
       Paths_my_project
@@ -45,6 +47,7 @@ library
     , bytestring
     , containers
     , directory
+    , dotenv
     , lucid
     , monad-logger
     , mtl
@@ -75,6 +78,7 @@ executable my-project-exe
     , bytestring
     , containers
     , directory
+    , dotenv
     , lucid
     , monad-logger
     , mtl
@@ -107,6 +111,7 @@ test-suite my-project-test
     , bytestring
     , containers
     , directory
+    , dotenv
     , lucid
     , monad-logger
     , mtl

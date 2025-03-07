@@ -24,6 +24,9 @@ import Data.Aeson
 import Data.Aeson.TH (deriveJSON, defaultOptions, fieldLabelModifier)
 import GHC.Generics (Generic)
 import Data.Char (toLower)
+-- import Web.FormUrlEncoded (FromForm(..), parseUnique)
+-- import Web.HttpApiData (FromHttpApiData(..))
+-- import qualified Data.Text as T
 
 -- Persistent database schema
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
@@ -52,6 +55,19 @@ instance FromJSON Todo where
         <$> v .: "todo"
         <*> v .: "description" 
         <*> v .: "completed"
+
+
+-- instance FromForm Todo where
+--     fromForm f = Todo 
+--         <$> (parseUnique "todo" f :: Either T.Text T.Text)  -- ✅ Change Text to T.Text
+--         <*> (parseUnique "description" f :: Either T.Text T.Text)  -- ✅ Use T.Text
+--         <*> ((maybe False (const True) <$> (parseUnique "completed" f :: Either T.Text Bool)))
+
+-- -- Add FromHttpApiData instances if needed
+-- instance FromHttpApiData Todo where
+--     parseUrlPiece t = case reads (T.unpack t) of
+--         [(todo, "")] -> Right todo
+--         _ -> Left "Cannot parse Todo"
 
 -- ✅ JSON instance for Entity Todo
 instance ToJSON (Entity Todo) where

@@ -10,13 +10,15 @@ import Network.Wai (Application)
 import Network.Wai.Handler.Warp (run)
 import Database
 import Database.Persist.Sql (ConnectionPool, runMigration)
-import Models (migrateAll)  -- ✅ Import migrateAll
+import Models (migrateAll)  
 
 server :: ConnectionPool -> Server API
 server pool = getTodos pool 
          :<|> postTodo pool 
          :<|> updateTodo pool 
          :<|> deleteTodo pool
+         :<|> getTodosPage pool
+         :<|> getAuthPage pool
 
 app :: ConnectionPool -> Application
 app pool = serve api (server pool)
