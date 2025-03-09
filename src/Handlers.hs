@@ -1,7 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Handlers (getTodos, postTodo, updateTodo, deleteTodo, getTodosPage, getAuthPage) where
+module Handlers (
+    getTodos, postTodo, updateTodo, deleteTodo,
+    getTodosPage, getAuthPage, toggleTodo  -- Add toggleTodo to exports
+) where
 
 import Servant
 import Models (Todo(..))
@@ -43,6 +46,17 @@ deleteTodo :: ConnectionPool -> Key Todo -> Handler NoContent
 deleteTodo pool todoId = do
     runDB (delete todoId) pool
     return NoContent
+
+-- Toggle todo completion status
+toggleTodo :: ConnectionPool -> Key Todo -> Handler (Html ())
+toggleTodo pool todoId = do
+    maybeTodo <- runDB (get todoId) pool
+    case maybeTodo of
+        Nothing -> throwError err404
+        Just todo -> do
+            let updatedTodo = todo { todoCompleted = not (todoCompleted todo) }
+            runDB (replace todoId updatedTodo) pool
+            return $ renderTodo (Entity todoId updatedTodo)
 
 -- HTML Page Handlers
 getTodosPage :: ConnectionPool -> Handler (Html ())

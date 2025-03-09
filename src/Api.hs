@@ -14,6 +14,7 @@ type API =
   :<|> "todos" :> ReqBody '[JSON, FormUrlEncoded] Todo :> Post '[HTML] (Html ())  -- Create a todo, return HTML fragment
   :<|> "todos" :> Capture "id" (Key Todo) :> ReqBody '[JSON, FormUrlEncoded] Todo :> Put '[JSON] (Entity Todo)  -- Update a todo
   :<|> "todos" :> Capture "id" (Key Todo) :> Delete '[JSON] NoContent  -- Delete a todo
+  :<|> "todos" :> Capture "id" (Key Todo) :> "toggle" :> Post '[HTML] (Html ())  -- Toggle todo completion status
   :<|> "todos" :> "html" :> Get '[HTML] (Html ())  -- Render the full todos page as HTML
   :<|> "auth" :> Get '[HTML] (Html ())  -- Render the auth page as HTML
 

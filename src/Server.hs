@@ -17,6 +17,7 @@ server pool = getTodos pool
          :<|> postTodo pool 
          :<|> updateTodo pool 
          :<|> deleteTodo pool
+         :<|> toggleTodo pool  -- Add toggle endpoint
          :<|> getTodosPage pool
          :<|> getAuthPage pool
 
