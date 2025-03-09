@@ -62,7 +62,7 @@ renderTodosPage todos = baseLayout $ do
 
 -- Render a Single Todo Item as an HTML list item
 renderTodo :: Entity Todo -> Html ()
-renderTodo (Entity todoId (Todo todo desc completed)) =
+renderTodo (Entity todoId (Todo todo desc completed _ )) =
     li_ [class_ "p-4 flex justify-between items-center bg-white rounded shadow-md"] $ do
         div_ [class_ "flex-grow"] $ do
             span_ [class_ "font-semibold text-lg"] $ toHtml todo

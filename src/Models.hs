@@ -13,7 +13,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Models (
-    Todo(..),         -- ✅ Export Todo entity
+    Todo(..),
+    User(..),         -- ✅ Export Todo entity
     migrateAll        -- ✅ Export migrateAll for migrations
 ) where
   
@@ -31,10 +32,16 @@ import Data.Maybe (fromMaybe)
 
 -- Persistent database schema
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
+  User
+    email String
+    passwordHash String
+    deriving Show Generic
+  
   Todo
     todo String
     description String
     completed Bool
+    userId UserId   -- Foreign key reference to User
     deriving Show Generic
 |]
 
@@ -43,12 +50,46 @@ customOptions = Aeson.defaultOptions {
     Aeson.fieldLabelModifier = drop 4  -- Drop the "todo" prefix from field names
 }
 
--- ✅ Use custom options for JSON instances
+-- USERS
+
+-- JSON instance for User using custom options
+instance ToJSON User where
+    toJSON (User email _) = object [ "email" .= email ]  -- Do not expose password hash
+
+instance FromJSON User where
+    parseJSON = withObject "User" $ \v -> 
+        User <$> v .: "email"
+             <*> v .: "passwordHash"
+
+-- JSON instance for Entity User
+instance ToJSON (Entity User) where
+    toJSON (Entity key value) =
+        object [ "id" .= key
+               , "email" .= userEmail value
+               , "passwordHash" .= userPasswordHash value
+               ]
+
+instance FromJSON (Entity User) where
+    parseJSON = withObject "Entity User" $ \v -> do
+        key <- v .: "id"
+        email <- v .: "email"
+        passwordHash <- v .: "passwordHash"
+        return $ Entity key (User email passwordHash)
+
+instance FromForm User where
+    fromForm f = User
+        <$> parseUnique "email" f
+        <*> parseUnique "password" f  -- The field name in the form will be "password"
+
+-- TODO
+
+-- Use custom options for JSON instances
 instance ToJSON Todo where
-    toJSON (Todo t d c) = object [
+    toJSON (Todo t d c u) = object [
         "todo" .= t,
         "description" .= d,
-        "completed" .= c
+        "completed" .= c,
+        "userId" .= u
       ]
 
 instance FromJSON Todo where
@@ -56,26 +97,22 @@ instance FromJSON Todo where
         <$> v .: "todo"
         <*> v .: "description" 
         <*> v .:? "completed" .!= False
+        <*> v .: "userId"
 
 instance FromForm Todo where
     fromForm f = Todo
         <$> parseUnique "todo" f
         <*> parseUnique "description" f
         <*> (fromMaybe False <$> parseMaybe "completed" f)
+        <*> parseUnique "userId" f
 
--- -- Add FromHttpApiData instances if needed
--- instance FromHttpApiData Todo where
---     parseUrlPiece t = case reads (T.unpack t) of
---         [(todo, "")] -> Right todo
---         _ -> Left "Cannot parse Todo"
-
--- ✅ JSON instance for Entity Todo
 instance ToJSON (Entity Todo) where
     toJSON (Entity key value) =
         object [ "id" .= key
                , "todo" .= todoTodo value
                , "description" .= todoDescription value
                , "completed" .= todoCompleted value
+               , "userId" .= todoUserId value
                ]
 
 instance FromJSON (Entity Todo) where
@@ -84,4 +121,5 @@ instance FromJSON (Entity Todo) where
         todo <- v .: "todo"
         description <- v .: "description"
         completed <- v .: "completed"
-        return $ Entity key (Todo todo description completed)
+        userId <- v .: "userId"
+        return $ Entity key (Todo todo description completed userId)
