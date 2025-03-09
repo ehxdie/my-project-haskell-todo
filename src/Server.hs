@@ -15,6 +15,9 @@ import Models (migrateAll)
 server :: ConnectionPool -> Server API
 server pool = getUsers pool
          :<|> createUser pool
+         :<|> loginUser pool
+         :<|> getLoginForm
+         :<|> getSignupForm
          :<|> getTodos pool 
          :<|> postTodo pool 
          :<|> updateTodo pool 

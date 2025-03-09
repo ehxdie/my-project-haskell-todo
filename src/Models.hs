@@ -14,8 +14,12 @@
 
 module Models (
     Todo(..),
-    User(..),         -- ✅ Export Todo entity
-    migrateAll        -- ✅ Export migrateAll for migrations
+    User(..),
+    migrateAll,
+    -- Export field accessor functions
+    userEmail,
+    userPasswordHash,
+    EntityField(..)  -- Export all entity fields
 ) where
   
 import Database.Persist.TH
@@ -35,6 +39,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
   User
     email String
     passwordHash String
+    UniqueEmail email  -- Add unique constraint on email
     deriving Show Generic
   
   Todo

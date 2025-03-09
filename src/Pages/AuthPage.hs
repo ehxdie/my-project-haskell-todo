@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Pages.AuthPage (renderAuthPage) where
+module Pages.AuthPage (renderAuthPage, renderLoginForm, renderSignupForm) where
 
 import Lucid
 import Pages.Layout
@@ -16,12 +16,18 @@ renderAuthPage = baseLayout $ do
                    , hxGet_ "/auth/login"
                    , hxTarget_ "#auth-forms"
                    , hxSwap_ "innerHTML"
+                   , hxTrigger_ "click"
+                   , hxClasses_ "add:text-blue-500 add:border-b-2 add:border-blue-500 remove:text-gray-500"
+                   , hxOn_ "click" "document.getElementById('signup-tab').classList.add('text-gray-500'); document.getElementById('signup-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500')"
                    ] "Login"
             button_ [ class_ "py-2 px-4 text-gray-500 font-medium"
                    , id_ "signup-tab"
                    , hxGet_ "/auth/signup"
                    , hxTarget_ "#auth-forms"  
                    , hxSwap_ "innerHTML"
+                   , hxTrigger_ "click"
+                   , hxClasses_ "add:text-blue-500 add:border-b-2 add:border-blue-500 remove:text-gray-500"
+                   , hxOn_ "click" "document.getElementById('login-tab').classList.add('text-gray-500'); document.getElementById('login-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500')"
                    ] "Sign Up"
 
         -- Forms container
@@ -31,7 +37,7 @@ renderAuthPage = baseLayout $ do
 renderLoginForm :: Html ()
 renderLoginForm = do
     form_ [ hxPost_ "/login"
-          , hxTarget_ "#response-message"
+          , hxTarget_ "body"  -- Target the whole body for redirection
           , class_ "space-y-4"
           ] $ do
         -- Email field

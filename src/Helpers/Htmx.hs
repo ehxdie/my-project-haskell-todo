@@ -54,3 +54,6 @@ dataValue_ = makeAttribute "data-value"
 
 hxOn_ :: Text -> Text -> Attribute
 hxOn_ event handler = makeAttribute ("hx-on:" <> event) handler
+
+hxClasses_ :: Text -> Attribute
+hxClasses_ = makeAttribute "hx-classes"

@@ -1,14 +1,16 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Handlers (
     getTodos, postTodo, updateTodo, deleteTodo,
     getTodosPage, getAuthPage, toggleTodo,
-    getUsers, createUser  -- Add new exports
+    getUsers, createUser,
+    loginUser, getLoginForm, getSignupForm  -- Add new exports
 ) where
 
 import Servant
-import Models (Todo(..), User(..))
+import Models (Todo(..), User(..), userEmail, userPasswordHash, EntityField(..))
 import Database.Persist.Sql (Entity(..), ConnectionPool, insertEntity, selectList, replace, delete, get)
 import Database (runDB)
 import Control.Monad.IO.Class (liftIO)
@@ -21,6 +23,10 @@ import Control.Monad.Logger (runStdoutLoggingT, logInfo, logDebug)
 import qualified Data.Text as T
 import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Database.Persist as P
+import Data.Text (Text)
+import Pages.AuthPage (renderLoginForm, renderSignupForm)
+import Control.Monad (void)
 
 -- USER HANDLERS
 getUsers :: ConnectionPool -> Handler [Entity User]
@@ -28,11 +34,40 @@ getUsers pool = runDB (selectList [] []) pool
 
 createUser :: ConnectionPool -> User -> Handler (Entity User)
 createUser pool user = do
-    liftIO $ runStdoutLoggingT $ do
-        $(logInfo) $ T.pack "Received POST /users request"
-        let userData = T.pack (BL.unpack (encode user))
-        $(logDebug) $ T.pack "Received user data: " <> userData
-    runDB (insertEntity user) pool
+
+    -- liftIO $ runStdoutLoggingT $ do
+    --     $(logInfo) $ T.pack "Received signup request"
+    --     let user  = T.pack (BL.unpack (encode user))
+    --     $(logDebug) $ T.pack "User data: " <> user
+    -- Check if user already exists
+    existing <- runDB (P.selectList [UserEmail P.==. userEmail user] []) pool
+    case existing of
+        (_:_) -> throwError err409 { errBody = BL.pack "User already exists" }
+        [] -> do
+            result <- runDB (insertEntity user) pool
+            return result
+
+-- Login handler
+loginUser :: ConnectionPool -> User -> Handler (Html ())
+loginUser pool user = do
+    users <- runDB (P.selectList 
+        [ UserEmail P.==. userEmail user
+        , UserPasswordHash P.==. userPasswordHash user 
+        ] []) pool
+    case users of
+        (user:_) -> do
+            -- On success, return the todos page
+            todos <- getTodos pool
+            return $ renderTodosPage todos
+        [] -> throwError err401 { errBody = BL.pack "Invalid credentials" }
+
+-- Get login form handler
+getLoginForm :: Handler (Html ())
+getLoginForm = return renderLoginForm
+
+-- Get signup form handler
+getSignupForm :: Handler (Html ())
+getSignupForm = return renderSignupForm
 
 -- DATABASE HANDLERS
 -- GET /todos (JSON response)
