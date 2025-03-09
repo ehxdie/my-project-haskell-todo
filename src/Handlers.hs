@@ -21,6 +21,10 @@ import qualified Data.Text as T
 import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy.Char8 as BL
 
+-- USER HANDLERS
+
+
+-- DATABASE HANDLERS
 -- GET /todos (JSON response)
 getTodos :: ConnectionPool -> Handler [Entity Todo]
 getTodos pool = runDB (selectList [] []) pool

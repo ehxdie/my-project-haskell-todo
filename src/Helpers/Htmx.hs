@@ -6,7 +6,7 @@ import Lucid
 import Lucid.Base
 import Data.Text (Text)
 
--- HTMX Attributess
+-- HTMX Attributes
 hxPost_ :: Text -> Attribute
 hxPost_ = makeAttribute "hx-post"
 
@@ -36,6 +36,18 @@ hxEncoding_ = makeAttribute "hx-encoding"
 
 hxHeaders_ :: Text -> Attribute
 hxHeaders_ = makeAttribute "hx-headers"
+
+hxPushUrl_ :: Text -> Attribute
+hxPushUrl_ = makeAttribute "hx-push-url"
+
+hxSelect_ :: Text -> Attribute
+hxSelect_ = makeAttribute "hx-select"
+
+hxSync_ :: Text -> Attribute
+hxSync_ = makeAttribute "hx-sync"
+
+hxValidate_ :: Text -> Attribute
+hxValidate_ = makeAttribute "hx-validate"
 
 dataValue_ :: Text -> Attribute
 dataValue_ = makeAttribute "data-value"
