@@ -21,12 +21,13 @@ import Database.Persist.TH
 import Database.Persist
 import Database.Persist.Sql
 import Data.Aeson
-import Data.Aeson.TH (deriveJSON, defaultOptions, fieldLabelModifier)
+import qualified Data.Aeson.TH as Aeson
 import GHC.Generics (Generic)
 import Data.Char (toLower)
--- import Web.FormUrlEncoded (FromForm(..), parseUnique)
--- import Web.HttpApiData (FromHttpApiData(..))
--- import qualified Data.Text as T
+import Web.FormUrlEncoded hiding (fieldLabelModifier)  -- Hide the conflicting name
+import Web.HttpApiData
+import Control.Monad
+import Data.Maybe (fromMaybe)
 
 -- Persistent database schema
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
@@ -38,8 +39,8 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 |]
 
 -- Custom JSON options to handle todoTodo, todoDescription, todoCompleted field names
-customOptions = defaultOptions {
-    fieldLabelModifier = drop 4  -- Drop the "todo" prefix from field names
+customOptions = Aeson.defaultOptions {
+    Aeson.fieldLabelModifier = drop 4  -- Drop the "todo" prefix from field names
 }
 
 -- ✅ Use custom options for JSON instances
@@ -54,14 +55,13 @@ instance FromJSON Todo where
     parseJSON = withObject "Todo" $ \v -> Todo
         <$> v .: "todo"
         <*> v .: "description" 
-        <*> v .: "completed"
+        <*> v .:? "completed" .!= False
 
-
--- instance FromForm Todo where
---     fromForm f = Todo 
---         <$> (parseUnique "todo" f :: Either T.Text T.Text)  -- ✅ Change Text to T.Text
---         <*> (parseUnique "description" f :: Either T.Text T.Text)  -- ✅ Use T.Text
---         <*> ((maybe False (const True) <$> (parseUnique "completed" f :: Either T.Text Bool)))
+instance FromForm Todo where
+    fromForm f = Todo
+        <$> parseUnique "todo" f
+        <*> parseUnique "description" f
+        <*> (fromMaybe False <$> parseMaybe "completed" f)
 
 -- -- Add FromHttpApiData instances if needed
 -- instance FromHttpApiData Todo where

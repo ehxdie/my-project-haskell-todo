@@ -36,3 +36,9 @@ hxEncoding_ = makeAttribute "hx-encoding"
 
 hxHeaders_ :: Text -> Attribute
 hxHeaders_ = makeAttribute "hx-headers"
+
+dataValue_ :: Text -> Attribute
+dataValue_ = makeAttribute "data-value"
+
+hxOn_ :: Text -> Text -> Attribute
+hxOn_ event handler = makeAttribute ("hx-on:" <> event) handler

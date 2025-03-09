@@ -38,8 +38,16 @@ dependencies:
 - directory
 - wai
 - base
-- lucid
+- lucid >= 2.10.2
+- lucid-svg
 - dotenv
+- monad-logger
+- fast-logger
+- time
+- wai-extra
+- http-types
+- http-api-data
+- http-media
 # - http-api-data
 # - http-types
 # - web-form-urlencoded
