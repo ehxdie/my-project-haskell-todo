@@ -13,11 +13,13 @@ import Database.Persist.Sql (ConnectionPool, runMigration)
 import Models (migrateAll)  
 
 server :: ConnectionPool -> Server API
-server pool = getTodos pool 
+server pool = getUsers pool
+         :<|> createUser pool
+         :<|> getTodos pool 
          :<|> postTodo pool 
          :<|> updateTodo pool 
          :<|> deleteTodo pool
-         :<|> toggleTodo pool  -- Add toggle endpoint
+         :<|> toggleTodo pool
          :<|> getTodosPage pool
          :<|> getAuthPage pool
 

@@ -3,11 +3,12 @@
 
 module Handlers (
     getTodos, postTodo, updateTodo, deleteTodo,
-    getTodosPage, getAuthPage, toggleTodo  -- Add toggleTodo to exports
+    getTodosPage, getAuthPage, toggleTodo,
+    getUsers, createUser  -- Add new exports
 ) where
 
 import Servant
-import Models (Todo(..))
+import Models (Todo(..), User(..))
 import Database.Persist.Sql (Entity(..), ConnectionPool, insertEntity, selectList, replace, delete, get)
 import Database (runDB)
 import Control.Monad.IO.Class (liftIO)
@@ -22,7 +23,16 @@ import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy.Char8 as BL
 
 -- USER HANDLERS
+getUsers :: ConnectionPool -> Handler [Entity User]
+getUsers pool = runDB (selectList [] []) pool
 
+createUser :: ConnectionPool -> User -> Handler (Entity User)
+createUser pool user = do
+    liftIO $ runStdoutLoggingT $ do
+        $(logInfo) $ T.pack "Received POST /users request"
+        let userData = T.pack (BL.unpack (encode user))
+        $(logDebug) $ T.pack "Received user data: " <> userData
+    runDB (insertEntity user) pool
 
 -- DATABASE HANDLERS
 -- GET /todos (JSON response)
