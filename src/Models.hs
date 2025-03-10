@@ -84,7 +84,7 @@ instance FromJSON (Entity User) where
 instance FromForm User where
     fromForm f = User
         <$> parseUnique "email" f
-        <*> parseUnique "password" f  -- The field name in the form will be "password"
+        <*> parseUnique "passwordHash" f  -- Match the field name from the form
 
 -- TODO
 

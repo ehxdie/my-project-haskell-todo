@@ -26,7 +26,7 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Database.Persist as P
 import Data.Text (Text)
 import Pages.AuthPage (renderLoginForm, renderSignupForm)
-import Control.Monad (void)
+import Control.Monad (void, when)
 
 -- USER HANDLERS
 getUsers :: ConnectionPool -> Handler [Entity User]
@@ -34,11 +34,16 @@ getUsers pool = runDB (selectList [] []) pool
 
 createUser :: ConnectionPool -> User -> Handler (Entity User)
 createUser pool user = do
-
-    -- liftIO $ runStdoutLoggingT $ do
-    --     $(logInfo) $ T.pack "Received signup request"
-    --     let user  = T.pack (BL.unpack (encode user))
-    --     $(logDebug) $ T.pack "User data: " <> user
+    liftIO $ runStdoutLoggingT $ do
+        $(logInfo) $ T.pack "Received signup request"
+        $(logDebug) $ T.pack "User email: " <> T.pack (userEmail user)
+        
+    -- Validate email and password
+    when (T.null $ T.pack $ userEmail user) $ 
+        throwError err400 { errBody = BL.pack "Email cannot be empty" }
+    when (T.null $ T.pack $ userPasswordHash user) $ 
+        throwError err400 { errBody = BL.pack "Password cannot be empty" }
+        
     -- Check if user already exists
     existing <- runDB (P.selectList [UserEmail P.==. userEmail user] []) pool
     case existing of

@@ -57,3 +57,6 @@ hxOn_ event handler = makeAttribute ("hx-on:" <> event) handler
 
 hxClasses_ :: Text -> Attribute
 hxClasses_ = makeAttribute "hx-classes"
+
+hxExt_ :: Text -> Attribute
+hxExt_ = makeAttribute "hx-ext"

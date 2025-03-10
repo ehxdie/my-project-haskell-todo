@@ -11,24 +11,25 @@ renderAuthPage = baseLayout $ do
     div_ [class_ "max-w-md mx-auto bg-white p-6 rounded shadow-md"] $ do
         -- Tabs for switching between forms
         div_ [class_ "flex mb-6 border-b"] $ do
+            -- For the login tab
             button_ [ class_ "py-2 px-4 text-blue-500 border-b-2 border-blue-500 font-medium"
-                   , id_ "login-tab"
-                   , hxGet_ "/auth/login"
-                   , hxTarget_ "#auth-forms"
-                   , hxSwap_ "innerHTML"
-                   , hxTrigger_ "click"
-                   , hxClasses_ "add:text-blue-500 add:border-b-2 add:border-blue-500 remove:text-gray-500"
-                   , hxOn_ "click" "document.getElementById('signup-tab').classList.add('text-gray-500'); document.getElementById('signup-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500')"
-                   ] "Login"
+                        , id_ "login-tab"
+                        , hxGet_ "/auth/login"
+                        , hxTarget_ "#auth-forms"
+                        , hxSwap_ "innerHTML"
+                        , hxTrigger_ "click"
+                        , hxOn_ "click" "document.getElementById('signup-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500'); document.getElementById('signup-tab').classList.add('text-gray-500');"
+                    ] "Login"
+
+            -- For the signup tab
             button_ [ class_ "py-2 px-4 text-gray-500 font-medium"
-                   , id_ "signup-tab"
-                   , hxGet_ "/auth/signup"
-                   , hxTarget_ "#auth-forms"  
-                   , hxSwap_ "innerHTML"
-                   , hxTrigger_ "click"
-                   , hxClasses_ "add:text-blue-500 add:border-b-2 add:border-blue-500 remove:text-gray-500"
-                   , hxOn_ "click" "document.getElementById('login-tab').classList.add('text-gray-500'); document.getElementById('login-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500')"
-                   ] "Sign Up"
+                        , id_ "signup-tab"
+                        , hxGet_ "/auth/signup"
+                        , hxTarget_ "#auth-forms"
+                        , hxSwap_ "innerHTML"
+                        , hxTrigger_ "click"
+                        , hxOn_ "click" "document.getElementById('login-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500'); document.getElementById('login-tab').classList.add('text-gray-500');"
+                    ] "Sign Up"
 
         -- Forms container
         div_ [id_ "auth-forms"] $ renderLoginForm
@@ -39,6 +40,7 @@ renderLoginForm = do
     form_ [ hxPost_ "/login"
           , hxTarget_ "body"  -- Target the whole body for redirection
           , class_ "space-y-4"
+          , hxExt_ "json-enc"
           ] $ do
         -- Email field
         div_ [class_ "space-y-1"] $ do
@@ -100,7 +102,7 @@ renderSignupForm = do
         div_ [class_ "space-y-1"] $ do
             label_ [class_ "text-sm font-medium"] "Password"
             input_ [ type_ "password"
-                  , name_ "passwordHash"
+                  , name_ "passwordHash"  -- Match the field name with FromForm instance
                   , placeholder_ "••••••••"
                   , class_ "w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                   , required_ "required"
