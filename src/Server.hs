@@ -4,27 +4,38 @@
 module Server (app, runServer) where
 
 import Servant
-import Api
+import Api 
 import Handlers
 import Network.Wai (Application)
 import Network.Wai.Handler.Warp (run)
 import Database
 import Database.Persist.Sql (ConnectionPool, runMigration)
-import Models (migrateAll)  
+import Models (migrateAll)
 
+-- Server implementation split by API type
+authServer :: ConnectionPool -> Server AuthAPI
+authServer pool = getAuthPage pool
+    :<|> getLoginForm
+    :<|> getSignupForm
+    :<|> loginUser pool
+
+todoServer :: ConnectionPool -> Server TodoAPI
+todoServer pool = getTodos pool
+    :<|> postTodo pool
+    :<|> updateTodo pool
+    :<|> deleteTodo pool
+    :<|> toggleTodo pool 
+    :<|> getTodosPage pool
+
+userServer :: ConnectionPool -> Server UserAPI
+userServer pool = getUsers pool
+    :<|> createUser pool
+
+-- Combined server
 server :: ConnectionPool -> Server API
-server pool = getUsers pool
-         :<|> createUser pool
-         :<|> loginUser pool
-         :<|> getLoginForm
-         :<|> getSignupForm
-         :<|> getTodos pool 
-         :<|> postTodo pool 
-         :<|> updateTodo pool 
-         :<|> deleteTodo pool
-         :<|> toggleTodo pool
-         :<|> getTodosPage pool
-         :<|> getAuthPage pool
+server pool = authServer pool
+    :<|> todoServer pool
+    :<|> userServer pool
 
 app :: ConnectionPool -> Application
 app pool = serve api (server pool)

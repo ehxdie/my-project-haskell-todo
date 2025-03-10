@@ -41,13 +41,13 @@ renderLoginForm = do
     form_ [ hxPost_ "/login"
           , hxTarget_ "body"  -- Target the whole body for redirection
           , class_ "space-y-4"
-          , hxExt_ "json-enc"
+          , hxExt_ "json-enc"  -- Add HTMX JSON encoding
           ] $ do
         -- Email field
         div_ [class_ "space-y-1"] $ do
             label_ [class_ "text-sm font-medium"] "Email"
             input_ [ type_ "email"
-                  , name_ "email"
+                  , name_ "email"  -- Matches User model field
                   , placeholder_ "you@example.com"
                   , class_ "w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                   , required_ "required"
@@ -57,7 +57,7 @@ renderLoginForm = do
         div_ [class_ "space-y-1"] $ do
             label_ [class_ "text-sm font-medium"] "Password"
             input_ [ type_ "password"
-                  , name_ "password"
+                  , name_ "passwordHash"  -- Changed from "password" to match User model field
                   , placeholder_ "••••••••"
                   , class_ "w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                   , required_ "required"
@@ -85,8 +85,8 @@ renderLoginForm = do
 renderSignupForm :: Html ()
 renderSignupForm = do
     form_ [ hxPost_ "/users"
-          , hxTarget_ "#response-message"
-          , hxSwap_ "outerHTML"
+          , hxTarget_ "#auth-forms"
+          , hxSwap_ "innerHTML"
           , class_ "space-y-4"
           ] $ do
         -- Email field

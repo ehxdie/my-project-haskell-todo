@@ -33,6 +33,9 @@ library
       Config.PasswordHashing
       Database
       Handlers
+      Handlers.Auth
+      Handlers.Todo
+      Handlers.User
       Helpers.Htmx
       Models
       Pages.AuthPage

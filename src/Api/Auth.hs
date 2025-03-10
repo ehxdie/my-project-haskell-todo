@@ -13,4 +13,4 @@ type AuthAPI =
        "auth" :> Get '[HTML] (Html ())  -- Render auth page
   :<|> "auth" :> "login" :> Get '[HTML] (Html ())  -- Get login form
   :<|> "auth" :> "signup" :> Get '[HTML] (Html ())  -- Get signup form
-  :<|> "login" :> ReqBody '[JSON, FormUrlEncoded] User :> Post '[HTML] (Html ())  -- Post request for user login
+  :<|> "login" :> ReqBody '[JSON, FormUrlEncoded, OctetStream] User :> Post '[HTML] (Html ())  -- Post request for user login

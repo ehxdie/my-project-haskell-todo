@@ -85,6 +85,7 @@ instance FromForm User where
     fromForm f = User
         <$> parseUnique "email" f
         <*> parseUnique "passwordHash" f  -- Match the field name from the form
+  -- Try both field names
 
 -- TODO
 
