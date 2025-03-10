@@ -26,6 +26,9 @@ source-repository head
 library
   exposed-modules:
       Api
+      Api.Auth
+      Api.Todo
+      Api.User
       Config.JwtAuth
       Config.PasswordHashing
       Database
