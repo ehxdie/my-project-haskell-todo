@@ -3,6 +3,7 @@
 module Pages.AuthPage (renderAuthPage, renderLoginForm, renderSignupForm) where
 
 import Lucid
+import Lucid.Base
 import Pages.Layout
 import Helpers.Htmx
 
@@ -12,23 +13,23 @@ renderAuthPage = baseLayout $ do
         -- Tabs for switching between forms
         div_ [class_ "flex mb-6 border-b"] $ do
             -- For the login tab
-            button_ [ class_ "py-2 px-4 text-blue-500 border-b-2 border-blue-500 font-medium"
+            button_ [ class_ "py-2 px-4 font-medium text-blue-500 border-b-2 border-blue-500"
                         , id_ "login-tab"
                         , hxGet_ "/auth/login"
                         , hxTarget_ "#auth-forms"
                         , hxSwap_ "innerHTML"
                         , hxTrigger_ "click"
-                        , hxOn_ "click" "document.getElementById('signup-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500'); document.getElementById('signup-tab').classList.add('text-gray-500');"
+                        , makeAttribute "onclick" "this.className='py-2 px-4 font-medium text-blue-500 border-b-2 border-blue-500'; document.getElementById('signup-tab').className='py-2 px-4 font-medium text-gray-500';"
                     ] "Login"
 
             -- For the signup tab
-            button_ [ class_ "py-2 px-4 text-gray-500 font-medium"
+            button_ [ class_ "py-2 px-4 font-medium text-gray-500"
                         , id_ "signup-tab"
                         , hxGet_ "/auth/signup"
                         , hxTarget_ "#auth-forms"
                         , hxSwap_ "innerHTML"
                         , hxTrigger_ "click"
-                        , hxOn_ "click" "document.getElementById('login-tab').classList.remove('text-blue-500', 'border-b-2', 'border-blue-500'); document.getElementById('login-tab').classList.add('text-gray-500');"
+                        , makeAttribute "onclick" "this.className='py-2 px-4 font-medium text-blue-500 border-b-2 border-blue-500'; document.getElementById('login-tab').className='py-2 px-4 font-medium text-gray-500';"
                     ] "Sign Up"
 
         -- Forms container
