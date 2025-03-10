@@ -56,7 +56,7 @@ renderLoginForm = do
         -- Password field
         div_ [class_ "space-y-1"] $ do
             label_ [class_ "text-sm font-medium"] "Password"
-            input_ [ type_ "password"
+            input_ [ type_ "passwordHash"
                   , name_ "passwordHash"  -- Changed from "password" to match User model field
                   , placeholder_ "••••••••"
                   , class_ "w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
