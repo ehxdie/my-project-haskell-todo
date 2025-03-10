@@ -22,7 +22,7 @@ extra-deps:
 - persistent-sqlite-2.13.1.0
 - persistent-template-2.12.0.0
 - lucid-svg-0.7.2.0@sha256:ac145997d5d6976d5c77e09992b5b204d7ddb7edba3002801927ed2acc69692b,1091
-
+- servant-auth-server-0.4.8.0
 
 
 # User packages to be built.

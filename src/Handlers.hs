@@ -27,43 +27,49 @@ import qualified Database.Persist as P
 import Data.Text (Text)
 import Pages.AuthPage (renderLoginForm, renderSignupForm)
 import Control.Monad (void, when)
+import Config.PasswordHashing (hashPassword, verifyPassword)
 
 -- USER HANDLERS
 getUsers :: ConnectionPool -> Handler [Entity User]
 getUsers pool = runDB (selectList [] []) pool
 
+-- CREATE USER (Signup)
 createUser :: ConnectionPool -> User -> Handler (Entity User)
 createUser pool user = do
     liftIO $ runStdoutLoggingT $ do
         $(logInfo) $ T.pack "Received signup request"
         $(logDebug) $ T.pack "User email: " <> T.pack (userEmail user)
-        
+    
     -- Validate email and password
     when (T.null $ T.pack $ userEmail user) $ 
         throwError err400 { errBody = BL.pack "Email cannot be empty" }
     when (T.null $ T.pack $ userPasswordHash user) $ 
         throwError err400 { errBody = BL.pack "Password cannot be empty" }
-        
+    
     -- Check if user already exists
     existing <- runDB (P.selectList [UserEmail P.==. userEmail user] []) pool
     case existing of
         (_:_) -> throwError err409 { errBody = BL.pack "User already exists" }
         [] -> do
-            result <- runDB (insertEntity user) pool
+            -- Hash the password before storing
+            hashedPassword <- liftIO $ hashPassword (userPasswordHash user)
+            let newUser = user { userPasswordHash = hashedPassword }
+            result <- runDB (insertEntity newUser) pool
             return result
 
--- Login handler
+-- LOGIN USER
 loginUser :: ConnectionPool -> User -> Handler (Html ())
 loginUser pool user = do
-    users <- runDB (P.selectList 
-        [ UserEmail P.==. userEmail user
-        , UserPasswordHash P.==. userPasswordHash user 
-        ] []) pool
+    -- Fetch user by email
+    users <- runDB (selectList [UserEmail P.==. userEmail user] []) pool
     case users of
-        (user:_) -> do
-            -- On success, return the todos page
-            todos <- getTodos pool
-            return $ renderTodosPage todos
+        (Entity _ dbUser : _) -> 
+            if verifyPassword (userPasswordHash user) (userPasswordHash dbUser)
+                then do
+                    -- On success, return the todos page
+                    todos <- getTodos pool
+                    return $ renderTodosPage todos
+                else throwError err401 { errBody = BL.pack "Invalid credentials" }
         [] -> throwError err401 { errBody = BL.pack "Invalid credentials" }
 
 -- Get login form handler

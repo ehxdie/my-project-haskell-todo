@@ -46,6 +46,13 @@ packages:
       size: 456
   original:
     hackage: lucid-svg-0.7.2.0@sha256:ac145997d5d6976d5c77e09992b5b204d7ddb7edba3002801927ed2acc69692b,1091
+- completed:
+    hackage: servant-auth-server-0.4.8.0@sha256:3f201b90528dd945ca38e6853a3a40f11597550a518b84055bb9cd2ab9346b67,5521
+    pantry-tree:
+      sha256: 806837097265cb3fd493b6efee643e3cc7ca87be57ae9680b0276a1be66d649f
+      size: 1376
+  original:
+    hackage: servant-auth-server-0.4.8.0
 snapshots:
 - completed:
     sha256: a81fb3877c4f9031e1325eb3935122e608d80715dc16b586eb11ddbff8671ecd
