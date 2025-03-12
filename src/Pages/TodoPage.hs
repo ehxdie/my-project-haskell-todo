@@ -10,9 +10,9 @@ import Helpers.Htmx
 import qualified Data.Text as T
 import Web.HttpApiData (toUrlPiece)
 
--- Render the full Todos Page using baseLayout
 renderTodosPage :: [Entity Todo] -> Html ()
 renderTodosPage todos = baseLayout $ do
+    
     div_ [class_ "max-w-4xl mx-auto bg-white p-6 rounded shadow-md"] $ do
         h2_ [class_ "text-3xl font-bold mb-6 text-center"] "Todo List"
 

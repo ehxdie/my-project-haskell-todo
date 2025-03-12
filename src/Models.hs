@@ -19,6 +19,7 @@ module Models (
     -- Export field accessor functions
     userEmail,
     userPasswordHash,
+    todoUserId,
     EntityField(..)  -- Export all entity fields
 ) where
   

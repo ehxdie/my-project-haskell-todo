@@ -20,13 +20,14 @@ authServer pool = getAuthPage pool
     :<|> loginUser pool
 
 todoServer :: ConnectionPool -> Server TodoAPI
-todoServer pool = getTodos pool
-    :<|> postTodo pool
-    :<|> updateTodo pool
-    :<|> deleteTodo pool
-    :<|> toggleTodo pool 
-    :<|> getTodosPage pool
-
+todoServer pool = 
+    (\authHeader -> getTodos authHeader pool)      -- Handles AuthHeader first
+    :<|> (\authHeader todo -> postTodo authHeader pool todo)
+    :<|> (\authHeader todoId todo -> updateTodo authHeader pool todoId todo)
+    :<|> (\authHeader todoId -> deleteTodo authHeader pool todoId)
+    :<|> (\authHeader todoId -> toggleTodo authHeader pool todoId)
+    :<|> (\authHeader -> getTodosPage authHeader pool)
+    
 userServer :: ConnectionPool -> Server UserAPI
 userServer pool = getUsers pool
     :<|> createUser pool

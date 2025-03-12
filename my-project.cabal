@@ -29,6 +29,7 @@ library
       Api.Auth
       Api.Todo
       Api.User
+      Config.AppConfig
       Config.JwtAuth
       Config.PasswordHashing
       Database
@@ -61,6 +62,8 @@ library
     , http-api-data
     , http-media
     , http-types
+    , jose
+    , jwt >=0.11.0
     , lucid >=2.10.2
     , lucid-svg
     , monad-logger
@@ -102,6 +105,8 @@ executable my-project-exe
     , http-api-data
     , http-media
     , http-types
+    , jose
+    , jwt >=0.11.0
     , lucid >=2.10.2
     , lucid-svg
     , monad-logger
@@ -145,6 +150,8 @@ test-suite my-project-test
     , http-api-data
     , http-media
     , http-types
+    , jose
+    , jwt >=0.11.0
     , lucid >=2.10.2
     , lucid-svg
     , monad-logger
