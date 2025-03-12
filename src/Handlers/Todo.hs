@@ -55,6 +55,12 @@ getTodos authHeader pool = do
 -- POST /todos (HTML response)
 postTodo :: Maybe T.Text -> ConnectionPool -> Todo -> Handler (Html ())
 postTodo authHeader pool todo = do
+    
+    liftIO $ runStdoutLoggingT $ do
+        $(logInfo) $ T.pack "Received POST /todos request"
+        $(logDebug) $ T.pack "Headers: " <> T.pack (show authHeader)
+        $(logDebug) $ T.pack "Todo data: " <> T.pack (show todo)
+
     secret <- liftIO getJwtSecret
     authenticatedUserEntity <- getAuthenticatedUser authHeader pool
     

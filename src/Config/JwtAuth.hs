@@ -18,6 +18,7 @@ import Control.Monad.IO.Class (liftIO)
 import Servant
 import Data.Maybe (fromMaybe)
 import qualified Data.Map as Map
+import Control.Applicative ((<|>))
 
 data JWTPayload = JWTPayload 
     { email :: Text
@@ -71,4 +72,6 @@ requireAuth secret mAuthHeader = case mAuthHeader of
         Just user -> return user
   where
     stripBearer :: Text -> Text
-    stripBearer t = fromMaybe t (T.stripPrefix "Bearer " t)
+    stripBearer t = fromMaybe t $ 
+        T.stripPrefix "Bearer " t <|>  
+        T.stripPrefix "Authorization=" t

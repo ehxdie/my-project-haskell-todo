@@ -28,6 +28,7 @@ import Data.Text.Encoding (decodeUtf8)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Logger (runStdoutLoggingT, logInfo, logDebug)
 import Servant.API (Headers, Header, addHeader)
 
 -- Auth Page Handlers
@@ -44,6 +45,7 @@ loginUser :: ConnectionPool -> User -> Handler (Headers '[Header "Set-Cookie" Te
 
 loginUser pool user = do
     users <- runDB (P.selectList [UserEmail P.==. userEmail user] []) pool
+    
     case users of
         (Entity userId dbUser : _) -> 
             if verifyPassword (userPasswordHash user) (userPasswordHash dbUser)
@@ -54,8 +56,7 @@ loginUser pool user = do
                     -- Get all todos associated with the user's ID
                     todos <- runDB (selectList [TodoUserId P.==. userId] []) pool
                     -- Create a cookie value (using OverloadedStrings, literals are Text)
-                    let cookieValue = "Authorization=" <> token <> "; Path=/; HttpOnly"
-                    -- Return the page with token as a cookie header
+                    let cookieValue = "Authorization=Bearer " <> token <> "; Path=/"
                     return $ addHeader cookieValue (renderTodosPage todos)
                 else throwError err401 { errBody = BL.pack "Invalid credentials" }
         [] -> throwError err401 { errBody = BL.pack "Invalid credentials" }

@@ -27,7 +27,6 @@ import Control.Monad (void, when)
 import Config.PasswordHashing (hashPassword, verifyPassword)
 
 
-
 -- USER HANDLERS
 getUsers :: ConnectionPool -> Handler [Entity User]
 getUsers pool = runDB (selectList [] []) pool
