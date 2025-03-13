@@ -12,16 +12,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module Models (
-    Todo(..),
-    User(..),
-    migrateAll,
-    -- Export field accessor functions
-    userEmail,
-    userPasswordHash,
-    todoUserId,
-    EntityField(..)  -- Export all entity fields
-) where
+module Models where
   
 import Database.Persist.TH
 import Database.Persist
@@ -90,7 +81,23 @@ instance FromForm User where
 
 -- TODO
 
--- Use custom options for JSON instances
+-- Setting up custom type for todoForm for form submissions
+data TodoForm = TodoForm {
+    formTodo :: String,        -- Changed from todo to formTodo
+    formDescription :: String, -- Changed from description to formDescription
+    formCompleted :: Bool      -- Changed from completed to formCompleted
+} deriving (Show, Generic)
+
+-- Setting up coversion function from todoForm to Todo type
+todoFromForm :: UserId -> TodoForm -> Todo
+todoFromForm userId form = Todo 
+    { todoTodo = formTodo form           -- Now uses formTodo
+    , todoDescription = formDescription form  -- Now uses formDescription
+    , todoCompleted = formCompleted form     -- Now uses formCompleted
+    , todoUserId = userId
+    }
+
+-- JSON instance for Todo 
 instance ToJSON Todo where
     toJSON (Todo t d c u) = object [
         "todo" .= t,
@@ -99,19 +106,20 @@ instance ToJSON Todo where
         "userId" .= u
       ]
 
-instance FromJSON Todo where
-    parseJSON = withObject "Todo" $ \v -> Todo
+-- Handles parsing of Json todo data into TodoForm
+instance FromJSON TodoForm where
+    parseJSON = withObject "TodoForm" $ \v -> TodoForm
         <$> v .: "todo"
         <*> v .: "description" 
         <*> v .:? "completed" .!= False
-        <*> v .: "userId"
 
-instance FromForm Todo where
-    fromForm f = Todo
+-- Handles parsing of FormUrlEncoded todo data into TodoForm
+instance FromForm TodoForm where
+    fromForm f = TodoForm
         <$> parseUnique "todo" f
         <*> parseUnique "description" f
         <*> (fromMaybe False <$> parseMaybe "completed" f)
-        <*> parseUnique "userId" f
+
 
 instance ToJSON (Entity Todo) where
     toJSON (Entity key value) =

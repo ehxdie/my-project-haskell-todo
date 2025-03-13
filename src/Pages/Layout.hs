@@ -17,7 +17,7 @@ baseLayout content = do
                 "    if (authCookie) {",
                 "        let token = authCookie.split('=')[1];",
                 "        if (token.startsWith('Bearer ')) {",
-                "            token = token.substring(7);", -- Remove 'Bearer ' prefix
+                "            token = token.substring(7);",
                 "        }",
                 "        localStorage.setItem('jwt_token', token);",
                 "    }",

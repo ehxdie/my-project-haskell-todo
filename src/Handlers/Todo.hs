@@ -13,7 +13,7 @@ module Handlers.Todo
     ) where
 
 import Servant
-import Models (Todo(..), todoUserId, User(..), userEmail, EntityField(..))
+import Models (Todo(..), todoUserId, User(..), userEmail, EntityField(..), TodoForm(..), todoFromForm)
 import Database.Persist.Sql (Entity(..), ConnectionPool, insertEntity, selectList, replace, delete, get, Key, (==.))
 import qualified Database.Persist as P
 import Database (runDB)
@@ -53,38 +53,41 @@ getTodos authHeader pool = do
     runDB (selectList [TodoUserId P.==. userId] []) pool
 
 -- POST /todos (HTML response)
-postTodo :: Maybe T.Text -> ConnectionPool -> Todo -> Handler (Html ())
-postTodo authHeader pool todo = do
-    
+postTodo :: Maybe T.Text -> ConnectionPool -> TodoForm -> Handler (Html ())
+postTodo authHeader pool todoForm = do
+
     liftIO $ runStdoutLoggingT $ do
         $(logInfo) $ T.pack "Received POST /todos request"
         $(logDebug) $ T.pack "Headers: " <> T.pack (show authHeader)
-        $(logDebug) $ T.pack "Todo data: " <> T.pack (show todo)
+        $(logDebug) $ T.pack "Todo data: " <> T.pack (show todoForm)
 
     secret <- liftIO getJwtSecret
     authenticatedUserEntity <- getAuthenticatedUser authHeader pool
     
     -- Get the actual UserId
     let userId = entityKey authenticatedUserEntity
+        todo = todoFromForm userId todoForm
     
     liftIO $ runStdoutLoggingT $ do
         $(logInfo) $ T.pack "Received POST /todos request"
         let todoData = T.pack (BL.unpack (encode todo))
         $(logDebug) $ T.pack "Received todo data: " <> todoData
 
-    result <- runDB (insertEntity todo { todoUserId = userId }) pool
+    result <- runDB (insertEntity todo) pool
     return $ renderTodo result
 
 -- PUT /todos/:id (JSON response)
-updateTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> Todo -> Handler (Entity Todo)
-updateTodo authHeader pool todoId newTodo = do
+updateTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> TodoForm  -> Handler (Entity Todo)
+updateTodo authHeader pool todoId todoForm = do
     secret <- liftIO getJwtSecret
     authenticatedUserEntity <- getAuthenticatedUser authHeader pool
     
     -- Get the actual UserId
     let userId = entityKey authenticatedUserEntity
-    runDB (replace todoId newTodo { todoUserId = userId }) pool
-    return (Entity todoId newTodo)
+        todo = todoFromForm userId todoForm
+
+    runDB (replace todoId todo) pool
+    return (Entity todoId todo)
 
 -- DELETE /todos/:id (JSON response)
 deleteTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> Handler NoContent
