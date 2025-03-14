@@ -72,6 +72,7 @@ library
     , persistent-postgresql
     , persistent-template
     , random
+    , raw-strings-qq
     , servant
     , servant-auth-server
     , servant-lucid
@@ -116,6 +117,7 @@ executable my-project-exe
     , persistent-postgresql
     , persistent-template
     , random
+    , raw-strings-qq
     , servant
     , servant-auth-server
     , servant-lucid
@@ -161,6 +163,7 @@ test-suite my-project-test
     , persistent-postgresql
     , persistent-template
     , random
+    , raw-strings-qq
     , servant
     , servant-auth-server
     , servant-lucid

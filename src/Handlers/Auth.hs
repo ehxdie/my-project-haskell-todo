@@ -60,6 +60,7 @@ loginUser pool user = do
                     -- Get all todos associated with the user's ID
                     todos <- runDB (selectList [TodoUserId P.==. userId] []) pool
                     -- Create a cookie value
+                    
                     let cookieValue = "Authorization=Bearer " <> token <> "; Path=/"
                     return $ addHeader cookieValue (renderTodosPage todos)
                 else do

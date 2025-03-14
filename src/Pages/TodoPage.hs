@@ -12,7 +12,13 @@ import Web.HttpApiData (toUrlPiece)
 
 renderTodosPage :: [Entity Todo] -> Html ()
 renderTodosPage todos = baseLayout $ do
-    
+    -- Add logout button at the top
+    div_ [class_ "flex justify-between items-center mb-6"] $ do
+        h2_ [class_ "text-3xl font-bold text-center"] "Todo List"
+        button_ [ class_ "bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                , onclick_ "logout()"
+                ] "Logout"
+                
     div_ [class_ "max-w-4xl mx-auto bg-white p-6 rounded shadow-md"] $ do
         h2_ [class_ "text-3xl font-bold mb-6 text-center"] "Todo List"
 
