@@ -14,7 +14,7 @@ import Control.Monad.IO.Class (liftIO)
 import Database.Persist.Sql (Key)
 import Pages.TodoPage (renderTodosPage, renderTodo)
 import Pages.AuthPage (renderAuthPage)
-import Lucid (Html)
+import Lucid (Html, div_, class_, toHtml)
 import Servant.HTML.Lucid (HTML)
 import Control.Monad.Logger (runStdoutLoggingT, logInfo, logDebug)
 import qualified Data.Text as T
@@ -22,7 +22,7 @@ import Data.Aeson (encode)
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Database.Persist as P
 import Data.Text (Text)
-import Pages.AuthPage (renderLoginForm, renderSignupForm)
+import Pages.AuthPage (renderLoginForm, renderSignupForm, renderTabs)
 import Control.Monad (void, when)
 import Config.PasswordHashing (hashPassword, verifyPassword)
 
@@ -53,7 +53,9 @@ createUser pool user = do
             hashedPassword <- liftIO $ hashPassword (userPasswordHash user)
             let newUser = user { userPasswordHash = hashedPassword }
             result <- runDB (insertEntity newUser) pool
-            return renderLoginForm
+            return $ do
+                div_ [class_ (T.pack "text-green-500 mb-4")] (toHtml "Signup successful! Please login.")
+                renderLoginForm
 
 
 
