@@ -62,7 +62,7 @@ renderLoginForm = do
                    ]
         div_ [class_ "space-y-1"] $ do
             label_ [class_ "text-sm font-medium text-gray-700"] "Password"
-            input_ [ type_ "password"  -- Corrected from "passwordHash"
+            input_ [ type_ "passwordHash"  
                    , name_ "passwordHash"
                    , placeholder_ "••••••••"
                    , class_ "w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 bg-gray-50"
@@ -100,7 +100,7 @@ renderSignupForm = do
                    ]
         div_ [class_ "space-y-1"] $ do
             label_ [class_ "text-sm font-medium text-gray-700"] "Password"
-            input_ [ type_ "password"
+            input_ [ type_ "passwordHash"
                    , name_ "passwordHash"
                    , placeholder_ "••••••••"
                    , class_ "w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 bg-gray-50"

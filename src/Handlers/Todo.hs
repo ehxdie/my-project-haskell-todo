@@ -66,6 +66,7 @@ postTodo authHeader pool todoForm = do
     
     -- Get the actual UserId
     let userId = entityKey authenticatedUserEntity
+        -- Converting the todoFrom type to the todo type, to allow for insertion into the database
         todo = todoFromForm userId todoForm
     
     liftIO $ runStdoutLoggingT $ do

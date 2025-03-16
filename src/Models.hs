@@ -42,11 +42,6 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
     deriving Show Generic
 |]
 
--- Custom JSON options to handle todoTodo, todoDescription, todoCompleted field names
-customOptions = Aeson.defaultOptions {
-    Aeson.fieldLabelModifier = drop 4  -- Drop the "todo" prefix from field names
-}
-
 -- USERS
 
 -- JSON instance for User using custom options
@@ -106,14 +101,14 @@ instance ToJSON Todo where
         "userId" .= u
       ]
 
--- Handles parsing of Json todo data into TodoForm
+-- Handles parsing of Json todo data from TodoForm
 instance FromJSON TodoForm where
     parseJSON = withObject "TodoForm" $ \v -> TodoForm
         <$> v .: "todo"
         <*> v .: "description" 
         <*> v .:? "completed" .!= False
 
--- Handles parsing of FormUrlEncoded todo data into TodoForm
+-- Handles parsing of FormUrlEncoded todo data from TodoForm
 instance FromForm TodoForm where
     fromForm f = TodoForm
         <$> parseUnique "todo" f
