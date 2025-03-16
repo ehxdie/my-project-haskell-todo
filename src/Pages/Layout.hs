@@ -58,8 +58,26 @@ baseLayout content = do
                 "    document.cookie = 'Authorization=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';",
                 "    /* Redirect to login page */",
                 "    window.location.href = '/auth';",
+                "}",
+                "",
+                "function toggleEdit(todoId) {",
+                "    /* Get the display and edit elements */",
+                "    const displayElement = document.getElementById(`todo-display-${todoId}`);",
+                "    const editElement = document.getElementById(`todo-edit-${todoId}`);",
+                "    ",
+                "    /* Toggle their visibility */",
+                "    if (displayElement.classList.contains('hidden')) {",
+                "        /* Switch back to display mode */",
+                "        displayElement.classList.remove('hidden');",
+                "        editElement.classList.add('hidden');",
+                "    } else {",
+                "        /* Switch to edit mode */",
+                "        displayElement.classList.add('hidden');",
+                "        editElement.classList.remove('hidden');",
+                "        /* Focus on the first input */",
+                "        editElement.querySelector('input[name=\"todo\"]').focus();",
+                "    }",
                 "}"
                 ])
-            
             
         body_ [class_ "bg-gray-100 min-h-screen p-6"] content

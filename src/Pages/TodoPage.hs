@@ -67,29 +67,62 @@ renderTodosPage todos = baseLayout $ do
                     ul_ [class_ "divide-y divide-gray-300"] $ mapM_ renderTodo todos
 
 -- Render a Single Todo Item as an HTML list item
+
 renderTodo :: Entity Todo -> Html ()
 renderTodo (Entity todoId (Todo todo desc completed _)) =
-    li_ [class_ "p-4 flex justify-between items-center bg-white rounded shadow-md"] $ do
-        div_ [class_ "flex-grow"] $ do
-            span_ [class_ "font-semibold text-lg"] $ toHtml todo
-            p_ [class_ "text-sm text-gray-600"] $ toHtml desc
-            
-        div_ [class_ "flex items-center gap-2"] $ do
-            -- Toggle Button
-            button_
-                [ hxPost_ ("/todos/" <> toUrlPiece todoId <> "/toggle")
-                , hxTarget_ "closest li"
-                , hxSwap_ "outerHTML"
-                , class_ $ "px-3 py-1 rounded " <> 
-                    if completed 
-                    then "bg-green-500 hover:bg-green-600" 
-                    else "bg-yellow-500 hover:bg-yellow-600"
-                ] $ toHtml (if completed then "Completed ✓" :: T.Text else "Mark Complete" :: T.Text)
+    li_ [class_ "p-4 flex flex-col gap-4 bg-white rounded shadow-md"] $ do
+        -- Display section
+        div_ [class_ "flex justify-between items-center"] $ do
+            div_ [class_ "flex-grow", id_ ("todo-display-" <> toUrlPiece todoId)] $ do
+                span_ [class_ "font-semibold text-lg"] $ toHtml todo
+                p_ [class_ "text-sm text-gray-600"] $ toHtml desc
+        
+            div_ [class_ "flex gap-2"] $ do
+                button_
+                    [ class_ "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                    , onclick_ $ "toggleEdit('" <> toUrlPiece todoId <> "')"
+                    ] "Edit"
                 
-            -- Delete Button
-            button_
-                [ hxDelete_ ("/todos/" <> toUrlPiece todoId)
-                , hxTarget_ "closest li"
-                , hxSwap_ "outerHTML"
-                , class_ "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                ] "Delete"
+                button_
+                    [ hxPost_ ("/todos/" <> toUrlPiece todoId <> "/toggle")
+                    , hxTarget_ "closest li"
+                    , hxSwap_ "outerHTML"
+                    , class_ $ "px-3 py-1 rounded " <> 
+                        if completed 
+                        then "bg-green-500 hover:bg-green-600" 
+                        else "bg-yellow-500 hover:bg-yellow-600"
+                    ] $ toHtml (if completed then "Completed ✓" :: T.Text else "Mark Complete" :: T.Text)
+                
+                button_
+                    [ hxDelete_ ("/todos/" <> toUrlPiece todoId)
+                    , hxTarget_ "closest li"
+                    , hxSwap_ "outerHTML"
+                    , class_ "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                    ] "Delete"
+        
+        -- Edit form (initially hidden)
+        form_ [ class_ "hidden flex flex-col gap-2", 
+                id_ ("todo-edit-" <> toUrlPiece todoId),
+                hxPut_ ("/todos/" <> toUrlPiece todoId),
+                hxTarget_ "closest li",
+                hxSwap_ "outerHTML"
+              ] $ do
+            input_ [ type_ "text"
+                , name_ "todo"
+                , value_ (T.pack todo)
+                , class_ "border p-2 rounded w-full"
+              ]
+            input_ [ type_ "text"
+                , name_ "description"
+                , value_ (T.pack desc)
+                , class_ "border p-2 rounded w-full"
+              ]
+            
+            div_ [class_ "flex gap-2"] $ do
+                button_ [ type_ "submit"
+                    , class_ "bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                    ] "Save"
+                button_ [ type_ "button"
+                    , class_ "bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded"
+                    , onclick_ $ "toggleEdit('" <> toUrlPiece todoId <> "')"
+                    ] "Cancel"
