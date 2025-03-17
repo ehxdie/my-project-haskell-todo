@@ -6,6 +6,7 @@ import Lucid
 import Lucid.Base
 import Data.Text (Text)
 
+-- Built in helpers
 -- HTMX Attributes
 hxPost_ :: Text -> Attribute
 hxPost_ = makeAttribute "hx-post"

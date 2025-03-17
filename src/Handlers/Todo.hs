@@ -43,7 +43,6 @@ getAuthenticatedUser authHeader pool = do
 -- GET /todos (JSON response)
 getTodos :: Maybe T.Text -> ConnectionPool -> Handler [Entity Todo]
 getTodos authHeader pool = do
-    secret <- liftIO getJwtSecret
     authenticatedUserEntity <- getAuthenticatedUser authHeader pool
     
     -- Get the actual UserId
@@ -61,7 +60,6 @@ postTodo authHeader pool todoForm = do
         $(logDebug) $ T.pack "Headers: " <> T.pack (show authHeader)
         $(logDebug) $ T.pack "Todo data: " <> T.pack (show todoForm)
 
-    secret <- liftIO getJwtSecret
     authenticatedUserEntity <- getAuthenticatedUser authHeader pool
     
     -- Get the actual UserId
@@ -77,19 +75,6 @@ postTodo authHeader pool todoForm = do
     result <- runDB (insertEntity todo) pool
     return $ renderTodo result
 
--- PUT /todos/:id (JSON response)
-updateTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> TodoForm  -> Handler (Entity Todo)
-updateTodo authHeader pool todoId todoForm = do
-    secret <- liftIO getJwtSecret
-    authenticatedUserEntity <- getAuthenticatedUser authHeader pool
-    
-    -- Get the actual UserId
-    let userId = entityKey authenticatedUserEntity
-        todo = todoFromForm userId todoForm
-
-    runDB (replace todoId todo) pool
-    return (Entity todoId todo)
-
 -- DELETE /todos/:id (JSON response)
 deleteTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> Handler NoContent
 deleteTodo authHeader pool todoId = do
@@ -101,7 +86,6 @@ deleteTodo authHeader pool todoId = do
 -- Toggle todo completion status
 toggleTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> Handler (Html ())
 toggleTodo authHeader pool todoId = do
-    secret <- liftIO getJwtSecret
     authenticatedUserEntity <- getAuthenticatedUser authHeader pool
     
     -- Get the actual UserId
@@ -118,7 +102,6 @@ toggleTodo authHeader pool todoId = do
 -- HTML Page Handlers
 getTodosPage :: Maybe T.Text -> ConnectionPool -> Handler (Html ())
 getTodosPage authHeader pool = do
-    secret <- liftIO getJwtSecret
     authenticatedUserEntity <- getAuthenticatedUser authHeader pool
     
     -- Get the actual UserId
@@ -126,3 +109,21 @@ getTodosPage authHeader pool = do
 
     todos <- runDB (selectList [TodoUserId P.==. userId] []) pool
     return $ renderTodosPage todos
+
+-- Update todo
+updateTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> TodoForm -> Handler (Html ())
+updateTodo authHeader pool todoId todoForm = do
+    
+    authenticatedUserEntity <- getAuthenticatedUser authHeader pool
+    
+    -- Get the actual UserId
+    let userId = entityKey authenticatedUserEntity
+        -- Converting the todoFrom type to the todo type, to allow for insertion into the database
+        todo = todoFromForm userId todoForm
+    
+    maybeTodo <- runDB (get todoId) pool
+    case maybeTodo of
+        Nothing -> throwError err404
+        Just _ -> do 
+            runDB (replace todoId todo) pool
+            return $ renderTodo (Entity todoId todo)
