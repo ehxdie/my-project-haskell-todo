@@ -7,7 +7,6 @@ module Handlers.Todo
     ( getTodos
     , getTodosPage
     , postTodo
-    , updateTodo
     , deleteTodo
     , toggleTodo
     ) where
