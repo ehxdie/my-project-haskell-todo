@@ -23,7 +23,6 @@ todoServer :: ConnectionPool -> Server TodoAPI
 todoServer pool = 
     (\authHeader -> getTodos authHeader pool)      -- Handles AuthHeader first
     :<|> (\authHeader todo -> postTodo authHeader pool todo)
-    :<|> (\authHeader todoId todo -> updateTodo authHeader pool todoId todo)
     :<|> (\authHeader todoId -> deleteTodo authHeader pool todoId)
     :<|> (\authHeader todoId -> toggleTodo authHeader pool todoId)
     :<|> (\authHeader -> getTodosPage authHeader pool)

@@ -110,20 +110,3 @@ getTodosPage authHeader pool = do
     todos <- runDB (selectList [TodoUserId P.==. userId] []) pool
     return $ renderTodosPage todos
 
--- Update todo
-updateTodo :: Maybe T.Text -> ConnectionPool -> Key Todo -> TodoForm -> Handler (Html ())
-updateTodo authHeader pool todoId todoForm = do
-    
-    authenticatedUserEntity <- getAuthenticatedUser authHeader pool
-    
-    -- Get the actual UserId
-    let userId = entityKey authenticatedUserEntity
-        -- Converting the todoFrom type to the todo type, to allow for insertion into the database
-        todo = todoFromForm userId todoForm
-    
-    maybeTodo <- runDB (get todoId) pool
-    case maybeTodo of
-        Nothing -> throwError err404
-        Just _ -> do 
-            runDB (replace todoId todo) pool
-            return $ renderTodo (Entity todoId todo)

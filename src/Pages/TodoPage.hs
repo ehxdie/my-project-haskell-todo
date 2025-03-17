@@ -73,16 +73,11 @@ renderTodo (Entity todoId (Todo todo desc completed _)) =
         
         -- Display section
         div_ [class_ "flex justify-between items-center"] $ do
-            div_ [class_ "flex-grow" , id_("todo-display" <> toUrlPiece todoId )] $ do
+            div_ [class_ "flex-grow"] $ do
                 span_ [class_ "font-semibold text-lg"] $ toHtml todo
                 p_ [class_ "text-sm text-gray-600"] $ toHtml desc
         
             div_ [class_ "flex gap-2"] $ do
-
-                button_
-                    [ class_ "bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                    , onclick_ $ "toggleEdit('" <> toUrlPiece todoId <> "')"
-                    ] "Edit"
 
                 -- complete
                 button_
@@ -103,39 +98,5 @@ renderTodo (Entity todoId (Todo todo desc completed _)) =
                     , class_ "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                     ] "Delete"
         
-        -- Edit form (initially hidden)
-        form_
-            [ hxPut_ ("/todos" <> toUrlPiece todoId)
-            , hxTarget_ "closest li"
-            , hxSwap_ "outerHTML"
-            , class_ "hidden flex flex-col space-y-3"
-            , id_ ("todo-edit" <> toUrlPiece todoId)
-            ] $ do
-                    
-                    input_
-                        [ type_ "text"
-                        , name_ "todo"
-                        , class_ "border p-2 w-full rounded"
-                        , value_ (T.pack todo)
-                        ]
-
-                    input_
-                        [ type_ "text"
-                        , name_ "description"
-                        , class_ "border p-2 w-full rounded"
-                        , value_ (T.pack desc)
-                        ]
-
-                    -- Submit Button
-                    div_ [class_ "flex gap-2"] $ do
-                        button_
-                            [ type_ "submit"
-                            , class_ "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full mt-3"
-                            ] "Save"
-                    
-                        button_
-                            [ type_ "button"
-                            , class_ "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full mt-3"
-                            ] "Cancel"
-                    
+        
                     
